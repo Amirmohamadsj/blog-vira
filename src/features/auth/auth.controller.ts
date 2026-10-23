@@ -1,0 +1,50 @@
+import { Controller,Body,HttpCode,HttpStatus,Inject,Post, UseGuards,Get, Req } from '@nestjs/common';
+import { AuthService } from './auth.service.js';
+import { LoginAuthModels } from '../../core/models/login-auth.models.js';
+import { CreateUserModels } from '../../core/models/create-user.models.js';
+import { AuthGuard } from '../../core/guards/auth.guard.js';
+import type { request, Request } from 'express';
+import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
+
+type AuthenticatedRequest = Request & {
+  user: AuthTokenPayload;
+};
+
+
+@Controller('auth')
+export class AuthController {
+
+    @Inject(AuthService)
+    private readonly authService! : AuthService;
+
+    @UseGuards(AuthGuard)
+    @Get('me')
+    getMe(@Req() request : AuthenticatedRequest){
+        return {
+            id : request.user.sub,
+            role : request.user.role,
+        };
+    }
+    @Post('register')
+    register(@Body() createUserModels : CreateUserModels){
+        return this.authService.register(createUserModels)
+    }
+
+    @Post('login')
+    @HttpCode(HttpStatus.OK)
+    login(@Body() loginAuthModels : LoginAuthModels){
+        return this.authService.login(loginAuthModels);
+    }
+
+    @UseGuards(AuthGuard)
+    @Post('logout')
+    @HttpCode(HttpStatus.OK)
+    async logout(
+        @Req() request : AuthenticatedRequest,
+    ):Promise<{ message : string}>{
+     const authorization = request.headers.authorization;        
+     const token = authorization!.slice(7);
+
+        return this.authService.logout(token,request.user)
+    }
+}
