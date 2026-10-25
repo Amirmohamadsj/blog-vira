@@ -6,7 +6,7 @@ import {
   Min,
 } from 'class-validator';
 
-import { BlockType } from '../enum/block-type.enum.js';
+import { BlockType } from '../../enum/block-type.enum.js';
 
 export class CreateBlockModel {
   @IsInt()

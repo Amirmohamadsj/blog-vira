@@ -29,4 +29,11 @@ export class RedisCacheService
   async onModuleDestroy(): Promise<void> {
     await this.redis.quit();
   }
+
+  async setIfNotExists(key: string, value: string, ttlSeconds: number): Promise<boolean> {
+    
+    const result = await this.redis.set(key,value,'EX',ttlSeconds,'NX')
+
+    return result === 'OK';
+  }
 }

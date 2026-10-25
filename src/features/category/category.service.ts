@@ -4,8 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { Category } from '../../core/entities/category.entity.js';
-import { CreateCategoryModels } from '../../core/models/create-category.models.js';
-import { UpdateCategoryModels } from '../../core/models/update-category.models.js';
+import { CreateCategoryModels } from '../../core/models/categroy-models/create-category.models.js';
+import { UpdateCategoryModels } from '../../core/models/categroy-models/update-category.models.js';
 import { CacheService } from '../../core/cache/cache.service.js';
 import { createSlug } from '../../core/utils/slug.util.js';
 

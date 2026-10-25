@@ -2,9 +2,9 @@ import { ConflictException, ForbiddenException, Injectable, NotFoundException } 
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../core/entities/user.entity.js';
 import { Repository } from 'typeorm';
-import { CreateUserModels } from '../../core/models/create-user.models.js';
+import { CreateUserModels } from '../../core/models/user-models/create-user.models.js';
 import bcrypt from "bcrypt"
-import { UpdateUserModels } from '../../core/models/update-user.models.js';
+import { UpdateUserModels } from '../../core/models/user-models/update-user.models.js';
 import { UserRole } from '../../core/enum/user-role.enum.js';
 
 @Injectable()

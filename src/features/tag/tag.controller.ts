@@ -14,8 +14,8 @@ import {
 } from '@nestjs/common';
 
 import { TagService } from './tag.service.js';
-import { CreateTagModels } from '../../core/models/create-tag.models.js';
-import { UpdateTagModels } from '../../core/models/update-tag.models.js';
+import { CreateTagModels } from '../../core/models/tag-models/create-tag.models.js';
+import { UpdateTagModels } from '../../core/models/tag-models/update-tag.models.js';
 import { AuthGuard } from '../../core/guards/auth.guard.js';
 import { RolesGuard } from '../../core/guards/roles.guard.js';
 import { Roles } from '../../core/decorators/roles.decorator.js';

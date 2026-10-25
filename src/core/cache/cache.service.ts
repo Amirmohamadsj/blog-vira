@@ -7,5 +7,11 @@ export abstract class  CacheService {
         ttlSeconds : number,
     ):Promise<void>;
 
+    abstract setIfNotExists(
+        key : string,
+        value : string,
+        ttlSeconds : number,
+    ):Promise<boolean>;
+    
     abstract del(key : string):Promise<void>;
 }

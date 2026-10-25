@@ -17,8 +17,8 @@ import { CategoriesService } from './category.service.js';
 import { AuthGuard } from '../../core/guards/auth.guard.js';
 import { RolesGuard } from '../../core/guards/roles.guard.js';
 import { Roles } from '../../core/decorators/roles.decorator.js';
-import { UpdateCategoryModels } from '../../core/models/update-category.models.js';
-import { CreateCategoryModels } from '../../core/models/create-category.models.js';
+import { UpdateCategoryModels } from '../../core/models/categroy-models/update-category.models.js';
+import { CreateCategoryModels } from '../../core/models/categroy-models//create-category.models.js';
 
 @Controller('categories')
 export class CategoriesController {

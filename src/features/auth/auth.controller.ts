@@ -1,7 +1,7 @@
 import { Controller,Body,HttpCode,HttpStatus,Inject,Post, UseGuards,Get, Req } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
-import { LoginAuthModels } from '../../core/models/login-auth.models.js';
-import { CreateUserModels } from '../../core/models/create-user.models.js';
+import { LoginAuthModels } from '../../core/models/auth-models/login-auth.models.js';
+import { CreateUserModels } from '../../core/models/user-models/create-user.models.js';
 import { AuthGuard } from '../../core/guards/auth.guard.js';
 import type { request, Request } from 'express';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';

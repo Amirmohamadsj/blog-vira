@@ -10,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 
-import { PostStatus } from '../enum/post-status.enum.js';
+import { PostStatus } from '../../enum/post-status.enum.js';
 
 export class CreatePostModels {
   @IsString()

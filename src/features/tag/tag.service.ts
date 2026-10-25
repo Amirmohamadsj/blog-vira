@@ -10,10 +10,10 @@ import { Repository } from 'typeorm';
 
 import { Tag } from '../../core/entities/tag.entity.js';
 import { CacheService } from '../../core/cache/cache.service.js';
-import { CreateTagModels } from '../../core/models/create-tag.models.js';
-import { UpdateTagModels } from '../../core/models/update-tag.models.js';
+import { CreateTagModels } from '../../core/models/tag-models/create-tag.models.js';
+import { UpdateTagModels } from '../../core/models/tag-models/update-tag.models.js';
 import { createSlug } from '../../core/utils/slug.util.js';
-import { console } from 'inspector';
+
 
 @Injectable()
 export class TagService {

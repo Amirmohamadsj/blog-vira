@@ -2,8 +2,8 @@ import { Injectable,Inject,UnauthorizedException } from '@nestjs/common';
 import bcrypt from "bcrypt"
 import { UsersService } from '../users/users.service.js';
 import { TokenService } from '../../core/auth/token-service.js';
-import { LoginAuthModels } from '../../core/models/login-auth.models.js';
-import { CreateUserModels } from '../../core/models/create-user.models.js';
+import { LoginAuthModels } from '../../core/models/auth-models/login-auth.models.js';
+import { CreateUserModels } from '../../core/models/user-models/create-user.models.js';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { createHash } from 'node:crypto';
 import { CacheService } from '../../core/cache/cache.service.js';

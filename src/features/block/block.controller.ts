@@ -14,7 +14,7 @@ import { BlockService } from './block.service.js';
 import { AuthGuard } from '../../core/guards/auth.guard.js';
 import { RolesGuard } from '../../core/guards/roles.guard.js';
 import { Roles } from '../../core/decorators/roles.decorator.js';
-import { CreateBlockModel } from '../../core/models/create-block.model.js';
+import { CreateBlockModel } from '../../core/models/block-models/create-block.model.js';
 
 @Controller('blocks')
 @UseGuards(AuthGuard, RolesGuard)

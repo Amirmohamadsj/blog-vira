@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { CacheService } from '../../core/cache/cache.service.js';
-import { QueryPostsModels } from '../../core/models/query-posts.models.js';
+import { QueryPostsModels } from '../../core/models/post-models/query-posts.models.js';
 import { applyQueryOptions } from '../../core/utils/builder.util.js';
 import { Post } from '../../core/entities/post.entity.js';
 import { Category } from '../../core/entities/category.entity.js';
@@ -17,8 +17,8 @@ import { Tag } from '../../core/entities/tag.entity.js';
 import { Media } from '../../core/entities/media.entity.js';
 import { User } from '../../core/entities/user.entity.js';
 import { PostStatus } from '../../core/enum/post-status.enum.js';
-import { CreatePostModels } from '../../core/models/create-post.models.js';
-import { UpdatePostModels } from '../../core/models/update-post.models.js';
+import { CreatePostModels } from '../../core/models/post-models/create-post.models.js';
+import { UpdatePostModels } from '../../core/models/post-models/update-post.models.js';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { createSlug } from '../../core/utils/slug.util.js';
 

@@ -7,7 +7,7 @@ import { AuthGuard } from '../../core/guards/auth.guard.js';
 import type { Response } from 'express';
 import { Roles } from '../../core/decorators/roles.decorator.js';
 import { RolesGuard } from '../../core/guards/roles.guard.js';
-import type { AuthenticatedRequest } from '../../core/models/authenticated-request.model.js';
+import type { AuthenticatedRequest } from '../../core/models/auth-models/authenticated-request.model.js';
 
 
 @Controller('media')

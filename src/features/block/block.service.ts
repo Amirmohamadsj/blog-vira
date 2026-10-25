@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Block } from '../../core/entities/block.entity.js';
 import { Repository } from 'typeorm';
 import { Post } from '../../core/entities/post.entity.js';
-import { CreateBlockModel } from '../../core/models/create-block.model.js';
+import { CreateBlockModel } from '../../core/models/block-models/create-block.model.js';
 import { CacheService } from '../../core/cache/cache.service.js';
 
 @Injectable()
