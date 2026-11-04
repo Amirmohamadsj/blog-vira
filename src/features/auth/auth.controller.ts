@@ -3,8 +3,11 @@ import { AuthService } from './auth.service.js';
 import { LoginAuthModels } from '../../core/models/auth-models/login-auth.models.js';
 import { CreateUserModels } from '../../core/models/user-models/create-user.models.js';
 import { AuthGuard } from '../../core/guards/auth.guard.js';
-import type { request, Request } from 'express';
+import type { Request } from 'express';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
+import { ChangePasswordModels } from '../../core/models/auth-models/change-password.models.js';
+
+
 
 type AuthenticatedRequest = Request & {
   user: AuthTokenPayload;
@@ -17,14 +20,7 @@ export class AuthController {
     @Inject(AuthService)
     private readonly authService! : AuthService;
 
-    @UseGuards(AuthGuard)
-    @Get('me')
-    getMe(@Req() request : AuthenticatedRequest){
-        return {
-            id : request.user.sub,
-            role : request.user.role,
-        };
-    }
+    
     @Post('register')
     register(@Body() createUserModels : CreateUserModels){
         return this.authService.register(createUserModels)
@@ -37,6 +33,20 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard)
+    @Post('change-password')
+    @HttpCode(HttpStatus.OK)
+    async changePassword(
+            @Body() body: ChangePasswordModels,
+            @Req() request: AuthenticatedRequest,
+        ) {
+        return this.authService.changePassword(
+            Number(request.user.sub),
+            body,
+        );
+    }
+
+
+    @UseGuards(AuthGuard)
     @Post('logout')
     @HttpCode(HttpStatus.OK)
     async logout(
@@ -47,4 +57,6 @@ export class AuthController {
 
         return this.authService.logout(token,request.user)
     }
+
+
 }

@@ -1,4 +1,4 @@
-import { Controller,Body,Post as HttpPost,Req,UseGuards, Inject, Get, Put, Delete, Param,ParseIntPipe } from '@nestjs/common';
+import { Controller,Body,Post as HttpPost,Req,UseGuards, Inject, Get, Put, Delete, Param,ParseIntPipe, Patch } from '@nestjs/common';
 import type { Request } from 'express';
 
 import { PostsService } from './posts.service.js';
@@ -9,6 +9,8 @@ import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { Query } from '@nestjs/common';
 import { QueryPostsModels } from '../../core/models/post-models/query-posts.models.js';
 import { RolesGuard } from '../../core/guards/roles.guard.js';
+import { Roles } from '../../core/decorators/roles.decorator.js';
+
 
 type AuthenticatedRequest = Request & {
   user: AuthTokenPayload;
@@ -44,9 +46,23 @@ export class PostsController {
         return this.postService.getPost(id);
     }
 
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('admin')
+    @Get('admin/all')
+    getAllPostsForAdmin() {
+        return this.postService.getAllPostsForAdmin();
+    }
 
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('admin')
+    @Get('admin/:id')
+    getPostForAdmin(
+        @Param('id', ParseIntPipe) id: number,
+    ) {
+        return this.postService.getPostForAdmin(id);
+    }
     @UseGuards(AuthGuard)
-    @Put(':id')
+    @Patch(':id')
     async updatePost(
         @Param('id', ParseIntPipe) id: number,
         @Body() updatePostModels: UpdatePostModels,

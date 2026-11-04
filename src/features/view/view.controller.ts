@@ -1,17 +1,21 @@
+
 import {
   Controller,
   Post,
+  Get,
   Param,
   ParseIntPipe,
   Inject,
   Req,
-  Res,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import type { Request, Response } from 'express';
+import type { Request } from 'express';
 
 import { ViewService } from './view.service.js';
-import { OptionalAuthGuard } from '../../core/guards/optional-auth.guard.js';
+import { AuthGuard } from '../../core/guards/auth.guard.js';
+import { RolesGuard } from '../../core/guards/roles.guard.js';
+import { Roles } from '../../core/decorators/roles.decorator.js';
 import type { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 
 type ViewRequest = Request & {
@@ -19,18 +23,58 @@ type ViewRequest = Request & {
   accessToken?: string;
 };
 
-@Controller('view')
+@Controller('analytics')
 export class ViewController {
   @Inject(ViewService)
   private readonly viewService!: ViewService;
 
-  @Post('posts/:postId')
-  @UseGuards(OptionalAuthGuard)
+  @Post('posts/:postId/views')
+  @UseGuards(AuthGuard)
   async registerView(
     @Param('postId', ParseIntPipe) postId: number,
     @Req() request: ViewRequest,
-    @Res({ passthrough: true }) response: Response,
   ) {
-    return this.viewService.registerView(postId, request, response);
+    return this.viewService.registerView(postId, request);
+  }
+
+  @Get('overview')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  async getOverview() {
+    return this.viewService.getOverview();
+  }
+
+  @Get('posts/popular')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  async getPopularPosts(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.viewService.getPopularPosts({ startDate, endDate });
+  }
+
+  @Get('posts/:postId')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  async getPostStats(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.viewService.getPostStats(postId, {
+      startDate,
+      endDate,
+    });
+  }
+
+  @Get('views/daily')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  async getDailyViews(
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+  ) {
+    return this.viewService.getDailyViews({ startDate, endDate });
   }
 }

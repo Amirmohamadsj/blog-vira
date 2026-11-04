@@ -18,6 +18,7 @@ import { RedisCacheModule } from '../../infra/cache/redis-cache.module.js';
   
 ],
   providers: [PostsService,AuthGuard],
-  controllers: [PostsController]
+  controllers: [PostsController],
+  exports:[PostsService]
 })
 export class PostsModule {}

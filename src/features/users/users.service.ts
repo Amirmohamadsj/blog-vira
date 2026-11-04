@@ -92,19 +92,30 @@ export class UsersService {
     }
 
 
-    async deleteUser(id:number){
+    
+    async deleteUser(id: number, requesterId: number) {
         const user = await this.userRepository.findOne({
-            where :{id}
-        })
+            where: { id },
+        });
 
-        if(!user){
-            throw new NotFoundException('not found user')
+        if (!user) {
+            throw new NotFoundException('User not found');
         }
 
-        const userdelete = await this.userRepository.delete(id)
+        if (user.id === requesterId) {
+            throw new ForbiddenException(
+            'You cannot delete your own account from admin management',
+            );
+        }
 
-        return userdelete
+        await this.userRepository.delete(id);
+
+        return {
+            message: 'User deleted successfully',
+            id: user.id,
+        };
     }
+
 
 
     async getByUserEmail(email:string){
@@ -130,24 +141,18 @@ export class UsersService {
     }
 
 
-    async updateUserRole(id:number,role: UserRole){
-        const user = await this.userRepository.findOne({
-            where : {id},
+    async getUserForPasswordChange(id: number) {
+        return this.userRepository
+            .createQueryBuilder('user')
+            .addSelect('user.password')
+            .where('user.id = :id', { id })
+            .getOne();
+    }
+
+    async updatePassword(id: number, hashedPassword: string) {
+        await this.userRepository.update(id, {
+            password: hashedPassword,
         });
-
-        if(!user){
-                throw new NotFoundException('User not found');
-        }
-
-        user.role = role;
-        await this.userRepository.save(user);
-
-        return{
-            id : user.id,
-            username : user.username,
-            email : user.email,
-            role : user.role
-        }
     }
 
 }

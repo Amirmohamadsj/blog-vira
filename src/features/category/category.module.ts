@@ -12,6 +12,7 @@ import { AuthModule } from '../auth/auth.module.js';
   imports:[TypeOrmModule.forFeature([Category]),
   JwtModuleInfra,AuthModule,RedisCacheModule],
   providers: [CategoriesService,AuthGuard],
-  controllers: [CategoriesController]
+  controllers: [CategoriesController],
+  exports : [CategoriesService]
 })
 export class CategoryModule {}

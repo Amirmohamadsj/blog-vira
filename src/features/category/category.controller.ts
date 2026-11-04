@@ -11,6 +11,7 @@ import {
   HttpStatus,
   UseGuards,
   Inject,
+  Patch,
 } from '@nestjs/common';
 
 import { CategoriesService } from './category.service.js';
@@ -48,7 +49,7 @@ export class CategoriesController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin')
-  @Put(':id')
+  @Patch(':id')
   updateCategory(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryModels: UpdateCategoryModels,

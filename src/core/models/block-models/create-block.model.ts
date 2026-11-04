@@ -1,7 +1,9 @@
+
 import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Min,
 } from 'class-validator';
@@ -9,10 +11,6 @@ import {
 import { BlockType } from '../../enum/block-type.enum.js';
 
 export class CreateBlockModel {
-  @IsInt()
-  @Min(1)
-  postId!: number;
-
   @IsEnum(BlockType)
   type!: BlockType;
 
@@ -23,4 +21,9 @@ export class CreateBlockModel {
   @IsInt()
   @Min(0)
   position!: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  mediaId?: number | null;
 }

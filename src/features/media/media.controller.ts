@@ -70,7 +70,8 @@ export class MediaController {
 
   @Delete(':id')
   @UseGuards(AuthGuard,RolesGuard)
-  @Roles('admin')  async  remove(
+  @Roles('admin')  
+  async  remove(
     @Param('id',ParseIntPipe) id : number,
   ): Promise<{message : string}> {
     await this.mediaService.remove(id);

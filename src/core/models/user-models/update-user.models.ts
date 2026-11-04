@@ -1,4 +1,5 @@
-import {IsEmail, IsOptional, IsString, MaxLength, MinLength,} from 'class-validator';
+import {IsEmail, IsOptional, IsString, MaxLength, MinLength, IsInt, Min} from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class UpdateUserModels {
   @IsOptional()
@@ -17,4 +18,10 @@ export class UpdateUserModels {
   @MinLength(8)
   @MaxLength(255)
   password?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  avatarMediaId?: number;
 }

@@ -340,4 +340,39 @@ export class PostsService {
     await this.cacheService.del(`posts:${id}`);
 
   }
+
+  
+    async getAllPostsForAdmin(): Promise<Post[]> {
+        return this.postRepository.find({
+            relations: {
+            author: true,
+            category: true,
+            tags: true,
+            coverMedia: true,
+            },
+            order: {
+            createdAt: 'DESC',
+            },
+        });
+    }
+
+    async getPostForAdmin(id: number) {
+        const post = await this.postRepository.findOne({
+            where: { id },
+            relations: {
+            author: true,
+            category: true,
+            coverMedia: true,
+            tags: true,
+            },
+        });
+
+        if (!post) {
+            throw new NotFoundException('Post not found');
+        }
+
+        return post;
+    }
+    
+
 }

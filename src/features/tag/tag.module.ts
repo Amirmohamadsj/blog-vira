@@ -10,6 +10,7 @@ import { RedisCacheModule } from '../../infra/cache/redis-cache.module.js';
 @Module({
   imports:[TypeOrmModule.forFeature([Tag]),JwtModuleInfra,AuthModule,RedisCacheModule],
   providers: [TagService,AuthModule],
-  controllers: [TagController]
+  controllers: [TagController],
+  exports : [TagService]
 })
 export class TagModule {}

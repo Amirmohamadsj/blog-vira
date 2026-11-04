@@ -7,7 +7,7 @@ import { RolesGuard } from '../../core/guards/roles.guard.js';
 import { Roles } from '../../core/decorators/roles.decorator.js';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { UpdateUserRoleModels } from '../../core/models/user-models/update-user-role.models.js';
-
+import type { Request } from 'express';
 
 type AuthenticatedRequest = Request & {
   user: AuthTokenPayload;
@@ -28,6 +28,16 @@ export class UsersController {
     }
 
     @UseGuards(AuthGuard)
+    @Get('me')
+    getMyProfile(
+        @Req() request: AuthenticatedRequest,
+    ) {
+        return this.userService.getUser(
+            Number(request.user.sub),
+        );
+    }
+
+    @UseGuards(AuthGuard)
     @Get(':id')
     getUser(
         @Param('id',ParseIntPipe) id : number,
@@ -43,7 +53,19 @@ export class UsersController {
         return this.userService.getUser(id);
     }
 
-
+    @UseGuards(AuthGuard)
+    @Patch('me')
+    updateMyProfile(
+        @Body() updateUserModels: UpdateUserModels,
+        @Req() request: AuthenticatedRequest,
+    ) {
+        return this.userService.updateUser(
+            Number(request.user.sub),
+            updateUserModels,
+            Number(request.user.sub),
+            request.user.role,
+        );
+        }
     @UseGuards(AuthGuard)
     @Patch(':id')
     updateUser(
@@ -63,17 +85,10 @@ export class UsersController {
     @Delete(':id')
     deleteUser(
         @Param('id',ParseIntPipe) id : number,
+        @Req() request:Request & { user : AuthTokenPayload}
     ){
-        return this.userService.deleteUser(id)
+        return this.userService.deleteUser(id,Number(request.user.sub))
     }
 
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles('admin')
-    @Patch(':id/role')
-    updateUserRole(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: UpdateUserRoleModels,
-    ) {
-    return this.userService.updateUserRole(id, body.role);
-    }
+    
 }

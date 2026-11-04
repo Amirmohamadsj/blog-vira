@@ -11,6 +11,7 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  Patch,
 } from '@nestjs/common';
 
 import { TagService } from './tag.service.js';
@@ -49,7 +50,7 @@ export class TagController {
 
     @UseGuards(AuthGuard, RolesGuard)
     @Roles('admin')
-    @Put(':id')
+    @Patch(':id')
     updateTag(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateTagModels: UpdateTagModels,
