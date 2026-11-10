@@ -8,8 +8,18 @@ import type { Response } from 'express';
 import { Roles } from '../../core/decorators/roles.decorator.js';
 import { RolesGuard } from '../../core/guards/roles.guard.js';
 import type { AuthenticatedRequest } from '../../core/models/auth-models/authenticated-request.model.js';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
+  ApiParam,
+  ApiResponse,
+} from '@nestjs/swagger';
 
 
+@ApiTags('Media')
 @Controller('media')
 
 export class MediaController {
@@ -18,7 +28,25 @@ export class MediaController {
     private readonly mediaService: MediaService;
 
 
-    
+  
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Upload a media file' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      required: ['file'],
+    },
+  })
+  @ApiResponse({ status: 201, description: 'File uploaded successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid file or file size exceeds 5 MB' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('upload')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
@@ -49,6 +77,28 @@ export class MediaController {
             return this.mediaService.upload(file);
   }
 
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Download a media file' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Media ID',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'File retrieved successfully',
+    content: {
+      'application/octet-stream': {
+        schema: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Media not found' })
   @Get(':id')
   @UseGuards(AuthGuard)
   async getFile(
@@ -68,6 +118,19 @@ export class MediaController {
     return new StreamableFile(file.body)
   }
 
+
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a media file (Admin only)' })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Media ID',
+    example: 1,
+  })
+  @ApiResponse({ status: 200, description: 'Media deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({ status: 404, description: 'Media not found' })
   @Delete(':id')
   @UseGuards(AuthGuard,RolesGuard)
   @Roles('admin')  

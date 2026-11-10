@@ -13,7 +13,7 @@ import { TokenService } from '../../core/auth/token-service.js';
         secret : configService.getOrThrow<string>('JWT_SECRET'),
         signOptions :{
           expiresIn : (
-            configService.get<string>('JWT_EXPIRES_IN') ?? '60m'
+            configService.get<string>('JWT_EXPIRES_IN') ?? '2000m'
           ) as NonNullable<JwtModuleOptions['signOptions']>['expiresIn'],
         }
       })

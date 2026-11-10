@@ -10,18 +10,29 @@ import { Query } from '@nestjs/common';
 import { QueryPostsModels } from '../../core/models/post-models/query-posts.models.js';
 import { RolesGuard } from '../../core/guards/roles.guard.js';
 import { Roles } from '../../core/decorators/roles.decorator.js';
-
+import {ApiTags,ApiOperation,ApiBearerAuth,ApiParam,ApiQuery,ApiBody,ApiResponse,} from '@nestjs/swagger';
 
 type AuthenticatedRequest = Request & {
   user: AuthTokenPayload;
 };
 
+@ApiTags('Posts')
 @Controller('posts')
 export class PostsController {
 
     @Inject(PostsService)
     private readonly postService! : PostsService;
 
+
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Create a post',
+        description: 'Creates a new post for the authenticated user.',
+    })
+    @ApiBody({ type: CreatePostModels })
+    @ApiResponse({ status: 201, description: 'Post created successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid input data.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
     @UseGuards(AuthGuard)
     @HttpPost()
     async createPost(
@@ -34,11 +45,28 @@ export class PostsController {
         );
     }
 
+
+    @ApiOperation({
+        summary: 'Get all published posts',
+        description: 'Retrieves published posts with search, filtering and sorting options.',
+    })
+    @ApiQuery({ type: QueryPostsModels })
+    @ApiResponse({ status: 200, description: 'Posts retrieved successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid query parameters.' })
     @Get()
     async getPosts(@Query() query : QueryPostsModels) {
       return this.postService.getPosts(query);
     }
 
+
+    @ApiOperation({
+        summary: 'Get post by ID',
+        description: 'Retrieves a published post by its ID.',
+    })
+    @ApiParam({ name: 'id', type: Number, example: 1 })
+    @ApiResponse({ status: 200, description: 'Post retrieved successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid post ID.' })
+    @ApiResponse({ status: 404, description: 'Post not found.' })
     @Get(':id')
     async getPost(
         @Param('id', ParseIntPipe) id: number,
@@ -46,6 +74,15 @@ export class PostsController {
         return this.postService.getPost(id);
     }
 
+
+    @ApiOperation({
+    summary: 'Get post by ID',
+        description: 'Retrieves a published post by its ID.',
+    })
+    @ApiParam({ name: 'id', type: Number, example: 1 })
+    @ApiResponse({ status: 200, description: 'Post retrieved successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid post ID.' })
+    @ApiResponse({ status: 404, description: 'Post not found.' })
     @UseGuards(AuthGuard, RolesGuard)
     @Roles('admin')
     @Get('admin/all')
@@ -53,6 +90,19 @@ export class PostsController {
         return this.postService.getAllPostsForAdmin();
     }
 
+
+    
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Get post by ID for admin',
+        description: 'Retrieves a post by ID, including unpublished posts. Admin access only.',
+    })
+    @ApiParam({ name: 'id', type: Number, example: 1 })
+    @ApiResponse({ status: 200, description: 'Post retrieved successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid post ID.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Admin access required.' })
+    @ApiResponse({ status: 404, description: 'Post not found.' })
     @UseGuards(AuthGuard, RolesGuard)
     @Roles('admin')
     @Get('admin/:id')
@@ -61,6 +111,19 @@ export class PostsController {
     ) {
         return this.postService.getPostForAdmin(id);
     }
+
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Update a post',
+        description: 'Updates an existing post. Only the author or an admin can modify it.',
+    })
+    @ApiParam({ name: 'id', type: Number, example: 1 })
+    @ApiBody({ type: UpdatePostModels })
+    @ApiResponse({ status: 200, description: 'Post updated successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid input data or post ID.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'You are not allowed to update this post.' })
+    @ApiResponse({ status: 404, description: 'Post not found.' })
     @UseGuards(AuthGuard)
     @Patch(':id')
     async updatePost(
@@ -76,6 +139,18 @@ export class PostsController {
         );
     }
 
+
+    @ApiBearerAuth()
+    @ApiOperation({
+        summary: 'Delete a post',
+        description: 'Deletes an existing post. Only the author or an admin can delete it.',
+    })
+    @ApiParam({ name: 'id', type: Number, example: 1 })
+    @ApiResponse({ status: 200, description: 'Post deleted successfully.' })
+    @ApiResponse({ status: 400, description: 'Invalid post ID.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'You are not allowed to delete this post.' })
+    @ApiResponse({ status: 404, description: 'Post not found.' })
     @UseGuards(AuthGuard)
     @Delete(':id')
     async deletePost(
