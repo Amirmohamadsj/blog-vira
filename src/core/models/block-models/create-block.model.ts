@@ -36,9 +36,10 @@ export class CreateBlockModel {
   @Min(0)
   position!: number;
 
-  @ApiPropertyOptional({
+    @ApiPropertyOptional({
     description: 'Associated media ID',
     example: 1,
+    type: Number,
     minimum: 1,
     nullable: true,
   })

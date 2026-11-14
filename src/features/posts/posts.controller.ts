@@ -50,7 +50,6 @@ export class PostsController {
         summary: 'Get all published posts',
         description: 'Retrieves published posts with search, filtering and sorting options.',
     })
-    @ApiQuery({ type: QueryPostsModels })
     @ApiResponse({ status: 200, description: 'Posts retrieved successfully.' })
     @ApiResponse({ status: 400, description: 'Invalid query parameters.' })
     @Get()
@@ -74,15 +73,14 @@ export class PostsController {
         return this.postService.getPost(id);
     }
 
-
+    @ApiBearerAuth()
     @ApiOperation({
-    summary: 'Get post by ID',
-        description: 'Retrieves a published post by its ID.',
+        summary: 'Get all posts for admin',
+        description: 'Retrieves all posts, including unpublished posts. Admin access only.',
     })
-    @ApiParam({ name: 'id', type: Number, example: 1 })
-    @ApiResponse({ status: 200, description: 'Post retrieved successfully.' })
-    @ApiResponse({ status: 400, description: 'Invalid post ID.' })
-    @ApiResponse({ status: 404, description: 'Post not found.' })
+    @ApiResponse({ status: 200, description: 'Posts retrieved successfully.' })
+    @ApiResponse({ status: 401, description: 'Unauthorized.' })
+    @ApiResponse({ status: 403, description: 'Admin access required.' })
     @UseGuards(AuthGuard, RolesGuard)
     @Roles('admin')
     @Get('admin/all')
