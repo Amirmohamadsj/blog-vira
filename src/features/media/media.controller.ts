@@ -3,10 +3,10 @@ import { Controller,Post,UseInterceptors,UploadedFile,ParseFilePipe,MaxFileSizeV
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import { MediaService } from './media.service.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
 import type { Response } from 'express';
-import { Roles } from '../../core/decorators/roles.decorator.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
 import type { AuthenticatedRequest } from '../../core/models/auth-models/authenticated-request.model.js';
 import {
   ApiTags,

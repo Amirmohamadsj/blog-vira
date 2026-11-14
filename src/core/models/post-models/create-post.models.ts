@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { PostStatus } from '../../enum/post-status.enum.js';
+import { PostStatus } from '../../enums/post-status.enum.js';
 
 export class CreatePostModels {
   @ApiProperty({

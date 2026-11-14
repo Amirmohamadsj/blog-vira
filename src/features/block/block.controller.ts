@@ -24,9 +24,9 @@ import {
 
 
 import { BlockService } from './block.service.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
-import { Roles } from '../../core/decorators/roles.decorator.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 import { CreateBlockModel } from '../../core/models/block-models/create-block.model.js';
 import type { AuthenticatedRequest } from '../../core/models/auth-models/authenticated-request.model.js';
 

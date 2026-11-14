@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { BlockType } from '../../enum/block-type.enum.js';
+import { BlockType } from '../../enums/block-type.enum.js';
 
 export class CreateBlockModel {
   @ApiProperty({

@@ -1,9 +1,9 @@
 import { CanActivate,ExecutionContext,Inject,Injectable,UnauthorizedException } from "@nestjs/common";
 import { Request } from "express";
-import { TokenService } from "../auth/token-service.js";
-import { AuthTokenPayload } from "../types/auth-token-payload.type.js";
+import { TokenService } from "../../core/auth/token-service.js";
+import { AuthTokenPayload } from "../../core/types/auth-token-payload.type.js";
 import { createHash } from "node:crypto";
-import { CacheService } from "../cache/cache.service.js";
+import { CacheService } from "../../core/cache/cache.service.js";
 
 type AuthenticatedRequest = Request & {
   user: AuthTokenPayload;

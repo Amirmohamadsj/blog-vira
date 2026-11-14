@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 
 import type { Post } from './post.entity.js';
-import { BlockType } from '../enum/block-type.enum.js';
+import { BlockType } from '../enums/block-type.enum.js';
 import type { Media } from './media.entity.js';
 
 @Entity('blocks')

@@ -13,7 +13,7 @@ import {
 import type { Post } from './post.entity.js';
 import type { Media } from './media.entity.js';
 import type { Comment } from './comment.entity.js';
-import { UserRole } from '../enum/user-role.enum.js';
+import { UserRole } from '../enums/user-role.enum.js';
 
 
 @Entity('users')

@@ -12,9 +12,9 @@ import {
 import type { Request } from 'express';
 
 import { ViewService } from './view.service.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
-import { Roles } from '../../core/decorators/roles.decorator.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 import type { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import {ApiTags,ApiOperation,ApiBearerAuth,ApiParam,ApiQuery,ApiResponse} from '@nestjs/swagger';
 

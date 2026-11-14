@@ -13,9 +13,9 @@ import {
 } from '@nestjs/swagger';
 
 import { AdminService } from './admin.module.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
-import { Roles } from '../../core/decorators/roles.decorator.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 
 @ApiTags('Admin Dashboard')
 @Controller('admin/dashboard')

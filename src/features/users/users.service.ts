@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateUserModels } from '../../core/models/user-models/create-user.models.js';
 import bcrypt from "bcrypt"
 import { UpdateUserModels } from '../../core/models/user-models/update-user.models.js';
-import { UserRole } from '../../core/enum/user-role.enum.js';
+import { UserRole } from '../../core/enums/user-role.enum.js';
 
 @Injectable()
 export class UsersService {

@@ -2,9 +2,9 @@ import { Controller, Inject, Param, ParseIntPipe,Get, Post, Body, Patch, Delete,
 import { UsersService } from './users.service.js';
 import { CreateUserModels } from '../../core/models/user-models/create-user.models.js';
 import { UpdateUserModels } from '../../core/models/user-models/update-user.models.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
-import { Roles } from '../../core/decorators/roles.decorator.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { UpdateUserRoleModels } from '../../core/models/user-models/update-user-role.models.js';
 import type { Request } from 'express';

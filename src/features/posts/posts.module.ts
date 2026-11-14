@@ -9,7 +9,7 @@ import { Media } from '../../core/entities/media.entity.js';
 import { User } from '../../core/entities/user.entity.js';
 import { JwtModuleInfra } from '../../infra/jwt/jwt.module.js';
 import { AuthModule } from '../auth/auth.module.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { RedisCacheModule } from '../../infra/cache/redis-cache.module.js';
 
 @Module({

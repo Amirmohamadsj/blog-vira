@@ -1,5 +1,5 @@
 import { SetMetadata } from "@nestjs/common";
-import type { AuthTokenPayload } from "../types/auth-token-payload.type.js";
+import type { AuthTokenPayload } from "../../core/types/auth-token-payload.type.js";
 
 export const ROLES_KEY = 'roles';
 

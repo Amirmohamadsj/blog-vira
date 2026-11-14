@@ -20,7 +20,7 @@ import type { Comment } from './comment.entity.js';
 import type { View } from './view.entity.js';
 import type { Tag } from './tag.entity.js';
 import type { Block } from './block.entity.js';
-import { PostStatus } from '../enum/post-status.enum.js';
+import { PostStatus } from '../enums/post-status.enum.js';
 
 @Entity('posts')
 export class Post {

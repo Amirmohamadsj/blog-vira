@@ -1,6 +1,6 @@
 import { CanActivate,ExecutionContext,ForbiddenException,Inject,Injectable,UnauthorizedException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { AuthTokenPayload } from "../types/auth-token-payload.type.js";
+import { AuthTokenPayload } from "../../core/types/auth-token-payload.type.js";
 import { ROLES_KEY } from "../decorators/roles.decorator.js";
 import { Observable } from "rxjs";
 

@@ -15,9 +15,9 @@ import {
 } from '@nestjs/common';
 
 import { CategoriesService } from './category.service.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
-import { Roles } from '../../core/decorators/roles.decorator.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 import { UpdateCategoryModels } from '../../core/models/categroy-models/update-category.models.js';
 import { CreateCategoryModels } from '../../core/models/categroy-models//create-category.models.js';
 import {ApiTags,ApiOperation,ApiBearerAuth,ApiParam,ApiBody,ApiResponse} from '@nestjs/swagger';

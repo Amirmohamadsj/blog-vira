@@ -4,12 +4,12 @@ import type { Request } from 'express';
 import { PostsService } from './posts.service.js';
 import { CreatePostModels } from '../../core/models/post-models/create-post.models.js';
 import { UpdatePostModels } from '../../core/models/post-models/update-post.models.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { Query } from '@nestjs/common';
 import { QueryPostsModels } from '../../core/models/post-models/query-posts.models.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
-import { Roles } from '../../core/decorators/roles.decorator.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 import {ApiTags,ApiOperation,ApiBearerAuth,ApiParam,ApiQuery,ApiBody,ApiResponse,} from '@nestjs/swagger';
 
 type AuthenticatedRequest = Request & {

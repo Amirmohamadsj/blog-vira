@@ -7,7 +7,7 @@ import { Post } from '../../core/entities/post.entity.js';
 import { RedisCacheModule } from '../../infra/cache/redis-cache.module.js';
 import { JwtModuleInfra } from '../../infra/jwt/jwt.module.js';
 import { AuthModule } from '../auth/auth.module.js';
-import { OptionalAuthGuard } from '../../core/guards/optional-auth.guard.js';
+import { OptionalAuthGuard } from '../../common/guards/optional-auth.guard.js';
 
 @Module({
   imports:[TypeOrmModule.forFeature([View,Post]),RedisCacheModule,JwtModuleInfra,AuthModule],

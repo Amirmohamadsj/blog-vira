@@ -2,7 +2,7 @@ import { Controller,Body,HttpCode,HttpStatus,Inject,Post, UseGuards,Req } from '
 import { AuthService } from './auth.service.js';
 import { LoginAuthModels } from '../../core/models/auth-models/login-auth.models.js';
 import { CreateUserModels } from '../../core/models/user-models/create-user.models.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
 import type { Request } from 'express';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { ChangePasswordModels } from '../../core/models/auth-models/change-password.models.js';

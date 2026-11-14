@@ -3,9 +3,9 @@ import { CanActivate,ExecutionContext,Inject,Injectable,UnauthorizedException } 
 import type { Request } from 'express';
 import { createHash } from 'node:crypto';
 
-import { TokenService } from '../auth/token-service.js';
-import type { AuthTokenPayload } from "../types/auth-token-payload.type.js";
-import { CacheService } from '../cache/cache.service.js';
+import { TokenService } from '../../core/auth/token-service.js';
+import type { AuthTokenPayload } from "../../core/types/auth-token-payload.type.js";
+import { CacheService } from '../../core/cache/cache.service.js';
 
 
 type OptionalAuthRequest = Request & {

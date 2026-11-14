@@ -3,7 +3,7 @@ import { CategoriesService } from './category.service.js';
 import { CategoriesController } from './category.controller.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Category } from '../../core/entities/category.entity.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { JwtModuleInfra } from '../../infra/jwt/jwt.module.js';
 import { RedisCacheModule } from '../../infra/cache/redis-cache.module.js';
 import { AuthModule } from '../auth/auth.module.js';

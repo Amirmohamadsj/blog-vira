@@ -1,7 +1,7 @@
 import { ObjectLiteral,SelectQueryBuilder } from "typeorm";
-import { applySearch } from '../query/search/apply-search.js';
-import { applyFilter } from '../query/filter/apply-filter.js';
-import { applySort } from '../query/sort/apply-sort.js';
+import { applySearch } from './search/apply-search.js';
+import { applyFilter } from './filter/apply-filter.js';
+import { applySort } from './sort/apply-sort.js';
 
 
 export interface QueryOptions {

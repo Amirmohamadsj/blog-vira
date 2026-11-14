@@ -17,9 +17,9 @@ import {
 import { TagService } from './tag.service.js';
 import { CreateTagModels } from '../../core/models/tag-models/create-tag.models.js';
 import { UpdateTagModels } from '../../core/models/tag-models/update-tag.models.js';
-import { AuthGuard } from '../../core/guards/auth.guard.js';
-import { RolesGuard } from '../../core/guards/roles.guard.js';
-import { Roles } from '../../core/decorators/roles.decorator.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { Roles } from '../../common/decorators/roles.decorator.js';
 import {ApiTags,ApiOperation,ApiBearerAuth,ApiParam,ApiBody,ApiResponse} from '@nestjs/swagger';
 
 @ApiTags('Tags')

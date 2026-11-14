@@ -7,7 +7,7 @@ import { Post } from '../../core/entities/post.entity.js';
 import { View } from '../../core/entities/view.entity.js';
 
 import { CacheService } from '../../core/cache/cache.service.js';
-import { PostStatus } from '../../core/enum/post-status.enum.js';
+import { PostStatus } from '../../core/enums/post-status.enum.js';
 
 @Injectable()
 export class AdminService{
