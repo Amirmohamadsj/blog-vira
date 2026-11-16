@@ -148,6 +148,7 @@ export class BlockService {
             afterPosition,
             })
             .orderBy('block.position', 'ASC')
+            .take(4)
             .getMany();
     }
 

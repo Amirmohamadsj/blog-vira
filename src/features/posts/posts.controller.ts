@@ -10,7 +10,8 @@ import { Query } from '@nestjs/common';
 import { QueryPostsModels } from '../../core/models/post-models/query-posts.models.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
-import {ApiTags,ApiOperation,ApiBearerAuth,ApiParam,ApiQuery,ApiBody,ApiResponse,} from '@nestjs/swagger';
+import {ApiTags,ApiOperation,ApiBearerAuth,ApiParam,ApiQuery,ApiBody,ApiResponse,ApiOkResponse} from '@nestjs/swagger';
+import { Post } from '../../core/entities/post.entity.js';
 
 type AuthenticatedRequest = Request & {
   user: AuthTokenPayload;
