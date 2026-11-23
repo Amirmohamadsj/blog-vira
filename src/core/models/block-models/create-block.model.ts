@@ -5,9 +5,16 @@ import {
   IsOptional,
   IsString,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
+
+import {
+  ApiProperty,
+  ApiPropertyOptional,
+} from '@nestjs/swagger';
+
 import { BlockType } from '../../enums/block-type.enum.js';
 
 export class CreateBlockModel {
@@ -23,6 +30,9 @@ export class CreateBlockModel {
     description: 'Block content',
     example: 'This is a sample paragraph.',
   })
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @IsNotEmpty()
   content!: string;
@@ -36,7 +46,7 @@ export class CreateBlockModel {
   @Min(0)
   position!: number;
 
-    @ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'Associated media ID',
     example: 1,
     type: Number,

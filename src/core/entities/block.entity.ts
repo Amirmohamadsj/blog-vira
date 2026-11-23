@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   CreateDateColumn,
   Entity,
@@ -10,14 +11,14 @@ import {
 } from 'typeorm';
 
 import type { Post } from './post.entity.js';
-import { BlockType } from '../enums/block-type.enum.js';
 import type { Media } from './media.entity.js';
+import { BlockType } from '../enums/block-type.enum.js';
 
 @Entity('blocks')
-@Index('IDX_blocks_post_id', ['postId'])
 @Index('UQ_blocks_post_position', ['postId', 'position'], {
   unique: true,
 })
+@Check('"position" >= 0')
 export class Block {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -40,9 +41,6 @@ export class Block {
   })
   @JoinColumn({ name: 'media_id' })
   media!: Media | null;
-  
-  @Column('text')
-  content!: string;
 
   @Column({
     type: 'enum',
@@ -50,12 +48,12 @@ export class Block {
     default: BlockType.TEXT,
   })
   type!: BlockType;
+
+  @Column('text')
+  content!: string;
+
   @Column({ type: 'integer' })
   position!: number;
-
-  @Column({ type: 'timestamptz', nullable: true })
-  lastEdit!: Date | null;
-
 
   @CreateDateColumn()
   createdAt!: Date;

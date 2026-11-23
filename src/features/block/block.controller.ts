@@ -12,6 +12,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+
 import {
   ApiTags,
   ApiOperation,
@@ -22,14 +23,17 @@ import {
   ApiResponse,
 } from '@nestjs/swagger';
 
-
 import { BlockService } from './block.service.js';
+
 import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
-import { Roles } from '../../common/decorators/roles.decorator.js';
-import { CreateBlockModel } from '../../core/models/block-models/create-block.model.js';
-import type { AuthenticatedRequest } from '../../core/models/auth-models/authenticated-request.model.js';
 
+import { Roles } from '../../common/decorators/roles.decorator.js';
+
+import { CreateBlockModel } from '../../core/models/block-models/create-block.model.js';
+import { UpdateBlockModel } from '../../core/models/block-models/update-block-model.js';
+
+import type { AuthenticatedRequest } from '../../core/models/auth-models/authenticated-request.model.js';
 
 @ApiTags('Blocks')
 @Controller('blocks')
@@ -42,7 +46,7 @@ export class BlockController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Update a block (Admin only)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
-  @ApiBody({ type: CreateBlockModel })
+  @ApiBody({ type: UpdateBlockModel })
   @ApiResponse({ status: 200, description: 'Block updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
@@ -50,21 +54,34 @@ export class BlockController {
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() model: Partial<CreateBlockModel>,
+    @Body() model: UpdateBlockModel,
+    @Req() request: AuthenticatedRequest,
   ) {
-    return this.blocksService.update(id, model);
+    return this.blocksService.update(
+      id,
+      request.user.sub,
+      request.user.role,
+      model,
+    );
   }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a block (Admin only)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
-  @ApiResponse({ status: 200, description: 'Block deleted successfully' })
+  @ApiResponse({ status: 204, description: 'Block deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
   @ApiResponse({ status: 404, description: 'Block not found' })
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.blocksService.remove(id);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() request: AuthenticatedRequest,
+  ) {
+    return this.blocksService.remove(
+      id,
+      request.user.sub,
+      request.user.role,
+    );
   }
 }
 
@@ -82,6 +99,7 @@ export class PostBlocksController {
   @ApiResponse({ status: 201, description: 'Block created successfully' })
   @ApiResponse({ status: 400, description: 'Invalid block data' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 404, description: 'Post not found' })
   @Post()
   create(
@@ -108,7 +126,6 @@ export class PostBlocksController {
   findByPost(@Param('postId', ParseIntPipe) postId: number) {
     return this.blocksService.findByPost(postId);
   }
-
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get next blocks of a post (Admin only)' })
