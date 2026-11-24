@@ -1,7 +1,7 @@
-import { Controller,Post,UseInterceptors,UploadedFile,ParseFilePipe,MaxFileSizeValidator,BadRequestException,UseGuards, Inject, Param, Res, Req, StreamableFile, Get, ParseIntPipe, Delete } from '@nestjs/common';
+import { Controller,Post,UseInterceptors,UploadedFile,ParseFilePipe,MaxFileSizeValidator,BadRequestException,UseGuards, Inject, Param, Res, Req, StreamableFile, Get, ParseIntPipe, Delete,Patch,Body } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-
+import { MediaIdModel } from '../../core/models/media-models/media-id.model.js';
 import { MediaService } from './media.service.js';
 import { AuthGuard } from '../../common/guards/auth.guard.js';
 import type { Response } from 'express';
@@ -49,7 +49,10 @@ export class MediaController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Post('upload')
   @UseGuards(AuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('file' ,{limits : {
+    fileSize : 5 * 1024 * 1024,
+    files : 1,
+  }}))
   async upload(
     @UploadedFile(
       new ParseFilePipe({
@@ -74,50 +77,72 @@ export class MediaController {
           
             
         ) {
-            return this.mediaService.upload(file);
+            return this.mediaService.upload(file, request.user.sub);
   }
 
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Download a media file' })
-  @ApiParam({
-    name: 'id',
-    type: Number,
-    description: 'Media ID',
-    example: 1,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'File retrieved successfully',
-    content: {
-      'application/octet-stream': {
-        schema: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Media not found' })
-  @Get(':id')
+  
+  @Get(':id/access')
+  async getAccess(
+      @Param('id', ParseIntPipe) id: number,
+      @Res() response: Response,
+  ) {
+      const url = await this.mediaService.getReadAccess(id);
+
+      return response.redirect(302, url);
+  }
+
+
+  @Patch('avatar')
   @UseGuards(AuthGuard)
-  async getFile(
-    @Param('id',ParseIntPipe) id : number,
-    @Res({passthrough : true}) response : Response,
-  ):Promise<StreamableFile>{
+  async updateAvatar(
+    @Body() body: MediaIdModel,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<{ message: string }> {
+    await this.mediaService.updateAvatar(
+      request.user.sub,
+      body.mediaId,
+    );
 
-    const file = await this.mediaService.getFile(id);
-
-    response.set({
-      'Content-Type' : file.contentType ?? 'application/octet-stream',
-      'Content-Disposition': `attachment; filename="${encodeURIComponent(file.originalName)}"`,
-
-    });
-
-
-    return new StreamableFile(file.body)
+    return { message: 'Avatar updated successfully' };
   }
 
+  @Post('posts/:postId')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  async attachToPost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() body: MediaIdModel,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<{ message: string }> {
+    await this.mediaService.attachToPost(
+      request.user.sub,
+      postId,
+      body.mediaId,
+    );
+
+    return {
+      message: 'Media attached to post successfully',
+    };
+  }
+
+  @Post('blocks/:blockId')
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles('admin')
+  async attachToBlock(
+    @Param('blockId', ParseIntPipe) blockId: number,
+    @Body() body: MediaIdModel,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<{ message: string }> {
+    await this.mediaService.attachToBlock(
+      request.user.sub,
+      blockId,
+      body.mediaId,
+    );
+
+    return {
+      message: 'Media attached to block successfully',
+    };
+  }
 
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete a media file (Admin only)' })
@@ -140,7 +165,7 @@ export class MediaController {
     await this.mediaService.remove(id);
 
     return {
-      message: 'Media deleted successfully',
+      message : 'Media deleted successfully',
     }
 
   };

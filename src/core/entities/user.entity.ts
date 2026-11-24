@@ -53,6 +53,9 @@ export class User {
   })
   role!: UserRole;
 
+  @OneToMany('Media', (media: Media) => media.owner)
+  mediaFiles!: Media[];
+
   @CreateDateColumn()
   createdAt!: Date;
 

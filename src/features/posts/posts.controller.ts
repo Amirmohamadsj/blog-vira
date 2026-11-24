@@ -85,8 +85,8 @@ export class PostsController {
     @UseGuards(AuthGuard, RolesGuard)
     @Roles('admin')
     @Get('admin/all')
-    getAllPostsForAdmin() {
-        return this.postService.getAllPostsForAdmin();
+    getAllPostsForAdmin(@Query() query : QueryPostsModels) {
+        return this.postService.getAllPostsForAdmin(query);
     }
 
 

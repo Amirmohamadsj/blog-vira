@@ -21,6 +21,7 @@ import { CreatePostModels } from '../../core/models/post-models/create-post.mode
 import { UpdatePostModels } from '../../core/models/post-models/update-post.models.js';
 import { AuthTokenPayload } from '../../core/types/auth-token-payload.type.js';
 import { createSlug } from '../../core/utils/slug.util.js';
+import { title } from 'process';
 
 
 @Injectable()
@@ -70,39 +71,46 @@ export class PostsService {
         return slug;
     }
 
-    async getPosts(query:QueryPostsModels):Promise<Post[]>{
+    async getPosts(query: QueryPostsModels): Promise<Post[]> {
+        const skip = query.skip ?? 0;
+        const take = 4;
+
         const cacheKey = `posts:all:${JSON.stringify({
             search: query.search,
             categoryId: query.categoryId,
             authorId: query.authorId,
             sortBy: query.sortBy,
             sortOrder: query.sortOrder,
+            skip,
+            take,
         })}`;
 
-        const cachedPosts = await this.cacheService.get(cacheKey)
+        const cachedPosts = await this.cacheService.get(cacheKey);
 
-        if(cachedPosts !== null){
+        if (cachedPosts !== null) {
             return JSON.parse(cachedPosts) as Post[];
         }
 
         const queryBuilder = this.postRepository
-             .createQueryBuilder('post')
+            .createQueryBuilder('post')
             .leftJoinAndSelect('post.author', 'author')
             .leftJoinAndSelect('post.category', 'category')
             .leftJoinAndSelect('post.tags', 'tags')
             .leftJoinAndSelect('post.coverMedia', 'coverMedia')
-            .where('post.status = :status', { status: 'published' });
+            .where('post.status = :status', {
+                status: 'published',
+            });
 
         applyQueryOptions(
-            queryBuilder,{
-                search:query.search,
-                filters:{
-                    categoryId : query.categoryId,
+            queryBuilder,
+            {
+                search: query.search,
+                filters: {
+                    categoryId: query.categoryId,
                     authorId: query.authorId,
                 },
-                sortBy:query.sortBy,
-                sortOrder:query.sortOrder,
-
+                sortBy: query.sortBy,
+                sortOrder: query.sortOrder,
             },
             {
                 searchColumns: ['post.title', 'post.content'],
@@ -115,18 +123,21 @@ export class PostsService {
                     updatedAt: 'post.updatedAt',
                     title: 'post.title',
                 },
-            }
-        )
+            },
+        );
 
+        const posts = await queryBuilder
+            .skip(skip)
+            .take(take)
+            .getMany();
 
-        const posts = await queryBuilder.getMany()
-            
         await this.cacheService.set(
             cacheKey,
             JSON.stringify(posts),
             60,
         );
-        return posts
+
+        return posts;
     }
 
     async getPost(id:number):Promise<Post>{
@@ -342,18 +353,46 @@ export class PostsService {
   }
 
   
-    async getAllPostsForAdmin(): Promise<Post[]> {
-        return this.postRepository.find({
-            relations: {
-            author: true,
-            category: true,
-            tags: true,
-            coverMedia: true,
+    async getAllPostsForAdmin(
+        query: QueryPostsModels,
+    ): Promise<Post[]> {
+        const queryBuilder = this.postRepository
+            .createQueryBuilder('post')
+            .leftJoinAndSelect('post.author', 'author')
+            .leftJoinAndSelect('post.category', 'category')
+            .leftJoinAndSelect('post.tags', 'tags')
+            .leftJoinAndSelect('post.coverMedia', 'coverMedia');
+
+        applyQueryOptions(
+            queryBuilder,
+            {
+            search: query.search,
+            filters: {
+                categoryId: query.categoryId,
+                authorId: query.authorId,
+                status: query.status,
             },
-            order: {
-            createdAt: 'DESC',
+            sortBy: query.sortBy,
+            sortOrder: query.sortOrder,
             },
-        });
+            {
+            searchColumns: ['post.title', 'post.content'],
+
+            allowedFilters: {
+                categoryId: 'category.id',
+                authorId: 'author.id',
+                status: 'post.status',
+            },
+
+            allowedSorts: {
+                createdAt: 'post.createdAt',
+                updatedAt: 'post.updatedAt',
+                title: 'post.title',
+            },
+            },
+        );
+
+    return queryBuilder.getMany();
     }
 
     async getPostForAdmin(id: number) {

@@ -17,6 +17,7 @@ import {
 
 import { StorageFile } from '../../core/storage/storage-file.model.js';
 import { ConfigService } from '@nestjs/config';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 @Injectable()
 export class MinioStorageService
@@ -102,5 +103,34 @@ export class MinioStorageService
         Key: key,
       }),
     );
+  }
+
+  async getReadAccess(
+    key : string,
+    expiresInSeconds : number,
+  ):Promise<{type : 'redirect' ; url : string}>{
+    if(
+      !Number.isInteger(expiresInSeconds) || 
+      expiresInSeconds < 1 ||
+      expiresInSeconds > 604800
+    ){
+      throw new Error('expiresInSeconds must be an integer between 1 and 604800.');
+    }
+
+    const command = new GetObjectCommand({
+      Bucket : this.bucket,
+      Key:key,
+    });
+
+    const url = await getSignedUrl(
+      this.s3,
+      command,
+      {expiresIn : expiresInSeconds},
+    );
+
+    return {
+      type : 'redirect',
+      url,
+    }
   }
 }

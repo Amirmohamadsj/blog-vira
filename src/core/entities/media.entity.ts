@@ -29,6 +29,13 @@ export class Media {
 
   @Column({ length: 500 })
   path!: string;
+
+  @ManyToOne('User', (user: User) => user.mediaFiles, {
+    nullable: false,
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn({ name: 'owner_id' })
+  owner!: User;
  
 
   @CreateDateColumn()

@@ -1,11 +1,13 @@
-import { Inject, Injectable, BadRequestException, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import { Inject, Injectable, BadRequestException, NotFoundException, InternalServerErrorException,ForbiddenException } from '@nestjs/common';
 import { StorageService } from '../../core/storage/storage.service.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Media } from '../../core/entities/media.entity.js';
 import { Repository } from 'typeorm';
 import { randomUUID } from 'node:crypto';
 import { fileTypeFromBuffer } from 'file-type';
-
+import { User } from '../../core/entities/user.entity.js';
+import { Post } from '../../core/entities/post.entity.js';
+import { Block } from '../../core/entities/block.entity.js';
 
 
 @Injectable()
@@ -16,6 +18,15 @@ export class MediaService {
 
     @InjectRepository(Media)
     private readonly mediaRepository! : Repository<Media>;
+
+    @InjectRepository(User)
+    private readonly userRepository!: Repository<User>;
+
+    @InjectRepository(Post)
+    private readonly postRepository!: Repository<Post>;
+
+    @InjectRepository(Block)
+    private readonly blockRepository!: Repository<Block>;
 
     private readonly maxFileSize = 5 * 1024 * 1024;
 
@@ -86,6 +97,7 @@ export class MediaService {
             mimetype: string;
             size: number;
         },
+        userId : number,
         
     ):Promise<Media>{
        await this.validateFile(file);
@@ -107,6 +119,7 @@ export class MediaService {
                 mimeType : file.mimetype,
                 size : file.size,
                 path : key,
+                owner : { id: userId } ,
             });
 
             return await this.mediaRepository.save(media);
@@ -122,32 +135,99 @@ export class MediaService {
 
 
     async findOne(id: number): Promise<Media> {
-        const media = await this.mediaRepository.findOne({
-            where: { id },
-        });
+    const media = await this.mediaRepository.findOne({
+        where: { id },
+        relations: {
+        owner: true,
+        },
+    });
 
-        if (!media) {
-            throw new NotFoundException('Media not found');
-        }
+    if (!media) {
+        throw new NotFoundException('Media not found');
+    }
 
         return media;
     }
 
+    async attachToPost(
+        userId: number,
+        postId: number,
+        mediaId: number,
+    ): Promise<void> {
+        const [post, media] = await Promise.all([
+            this.postRepository.findOne({
+            where: { id: postId },
+            }),
+            this.findOne(mediaId),
+        ]);
+
+        if (!post) {
+            throw new NotFoundException('Post not found');
+        }
+
+        if (media.owner.id !== userId) {
+            throw new ForbiddenException(
+            'You can only use your own media.',
+            );
+        }
+
+        post.coverMedia = media;
+
+        await this.postRepository.save(post);
+    }
+
+    async attachToBlock(
+        userId: number,
+        blockId: number,
+        mediaId: number,
+    ): Promise<void> {
+        const [block, media] = await Promise.all([
+            this.blockRepository.findOne({
+            where: { id: blockId },
+            relations: {
+                post: true,
+            },
+            }),
+            this.findOne(mediaId),
+        ]);
+
+        if (!block) {
+            throw new NotFoundException('Block not found');
+        }
+
+        if (media.owner.id !== userId) {
+            throw new ForbiddenException(
+            'You can only use your own media.',
+            );
+        }
+
+        block.media = media;
+
+        await this.blockRepository.save(block);
+    }
     
-    async getFile(id: number): Promise<{
-        body: Buffer;
-        contentType?: string;
-        originalName: string;
-    }> {
-        const media = await this.findOne(id);
+    
 
-        const file = await this.storageService.get(media.path);
+    async updateAvatar(userId : number, mediaId : number):Promise<void>{
+        const media = await this.findOne(mediaId);
 
-        return {
-            body: file.body,
-            contentType: file.contentType ?? media.mimeType,
-            originalName: media.originalName,
-        };
+        if(media.owner.id !== userId){
+            throw new ForbiddenException('You can only use your own media.')
+        }
+
+        const user = await this.userRepository.findOne({
+            where: { id: userId },
+            relations: {avatarMedia:true},
+        });
+
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        user.avatarMedia = media;
+
+        await this.userRepository.save(user);
+        
     }
 
     async remove(id: number): Promise<void> {
@@ -162,6 +242,42 @@ export class MediaService {
                 'Media record was deleted, but the file could not be deleted from storage',
             );
         }
+    }
+
+    async getReadAccess(id:number):Promise<string>{
+        const media = await this.findOne(id);
+        const[isAvatar, isPublishedCover, isPublishedBlockImage] = await Promise.all([
+            this.userRepository
+                .createQueryBuilder('user')
+                .innerJoin('user.avatarMedia','avatarMedia')
+                .where('avatarMedia.id = :id', { id })
+                .getExists(),
+
+            this.postRepository
+                .createQueryBuilder('post')
+                .innerJoin('post.coverMedia', 'coverMedia')
+                .where('coverMedia.id = :id', { id })
+                .andWhere('post.status = :status', {status: 'published'})
+
+                .getExists(),
+
+            this.blockRepository
+                .createQueryBuilder('block')
+                .innerJoin('block.media', 'media')
+                .innerJoin('block.post', 'post')
+                .where('media.id = :id', { id })
+                .andWhere('post.status = :status', {status: 'published'})
+                .getExists(),
+
+        ]);
+
+        if(!isAvatar && !isPublishedCover && !isPublishedBlockImage){
+            throw new ForbiddenException('You are not allowed to access this media.');
+        }
+        const access = await this.storageService.getReadAccess(media.path,300);
+
+
+        return access.url;
     }
 
 }

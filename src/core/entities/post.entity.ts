@@ -97,6 +97,8 @@ export class Post {
   @OneToMany('Block', (block: Block) => block.post)
   blocks!: Block[];
 
+  
+
   @CreateDateColumn()
   createdAt!: Date;
 

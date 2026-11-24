@@ -7,9 +7,12 @@ import { StorageModule } from '../../infra/storage/storage.module.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { JwtModuleInfra } from '../../infra/jwt/jwt.module.js';
 import { RedisCacheModule } from '../../infra/cache/redis-cache.module.js';
+import { User } from '../../core/entities/user.entity.js';
+import { Post } from '../../core/entities/post.entity.js';
+import { Block } from '../../core/entities/block.entity.js';
 
 @Module({
-  imports : [TypeOrmModule.forFeature([Media]),StorageModule,AuthModule,JwtModuleInfra,RedisCacheModule],
+  imports : [TypeOrmModule.forFeature([Media,User,Post,Block]),StorageModule,AuthModule,JwtModuleInfra,RedisCacheModule],
   providers: [MediaService],
   controllers: [MediaController]
 })

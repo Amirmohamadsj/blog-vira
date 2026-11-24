@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  IsEnum,
   IsIn,
   IsInt,
   IsOptional,
@@ -8,6 +9,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { PostStatus } from '../../enums/post-status.enum.js';
 
 export class QueryPostsModels {
   @ApiPropertyOptional({
@@ -53,8 +55,8 @@ export class QueryPostsModels {
     example: 'published',
   })
   @IsOptional()
-  @IsIn(['draft', 'published'])
-  status?: 'draft' | 'published';
+  @IsEnum(PostStatus)
+  status?: PostStatus;
 
   @ApiPropertyOptional({
     description: 'Field used to sort posts',
@@ -73,4 +75,11 @@ export class QueryPostsModels {
   @IsOptional()
   @IsIn(['ASC', 'DESC'])
   sortOrder?: 'ASC' | 'DESC';
+
+  @ApiPropertyOptional({ default: 0, minimum: 0 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Type(() => Number)
+  skip?: number = 0;
 }
