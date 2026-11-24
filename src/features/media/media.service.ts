@@ -1,4 +1,4 @@
-import { Inject, Injectable, BadRequestException, NotFoundException, InternalServerErrorException,ForbiddenException } from '@nestjs/common';
+import { Inject, Logger, Injectable, BadRequestException, NotFoundException, ConflictException, InternalServerErrorException,ForbiddenException } from '@nestjs/common';
 import { StorageService } from '../../core/storage/storage.service.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Media } from '../../core/entities/media.entity.js';
@@ -37,7 +37,21 @@ export class MediaService {
         'application/pdf',
     ];
 
+    private readonly logger = new Logger(MediaService.name);
+    
+    private validateImageMedia(media: Media): void {
+    const allowedImageTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+    ];
 
+    if (!allowedImageTypes.includes(media.mimeType)) {
+        throw new BadRequestException(
+        'Only image files can be used in this location.',
+        );
+    }
+}
     
     private async validateFile(file: {
         buffer: Buffer;
@@ -89,6 +103,8 @@ export class MediaService {
 
 
     }
+
+    
     
     async upload(
         file :{
@@ -123,13 +139,19 @@ export class MediaService {
             });
 
             return await this.mediaRepository.save(media);
-        } catch(error){
+        }  catch (error) {
             try {
                 await this.storageService.delete(key);
-            } catch {
-
+            } catch (cleanupError) {
+                this.logger.error(
+                    `Failed to cleanup uploaded file: ${key}`,
+                    cleanupError instanceof Error
+                        ? cleanupError.stack
+                        : String(cleanupError),
+                );
             }
-            throw error
+
+            throw error;
         }
     }
 
@@ -165,11 +187,33 @@ export class MediaService {
             throw new NotFoundException('Post not found');
         }
 
+        this.validateImageMedia(media);
+
         if (media.owner.id !== userId) {
             throw new ForbiddenException(
             'You can only use your own media.',
             );
         }
+        const [isAvatar, isBlockMedia] = await Promise.all([
+            this.userRepository
+                .createQueryBuilder('user')
+                .innerJoin('user.avatarMedia', 'avatarMedia')
+                .where('avatarMedia.id = :mediaId', { mediaId })
+                .getExists(),
+
+            this.blockRepository
+                .createQueryBuilder('block')
+                .innerJoin('block.media', 'media')
+                .where('media.id = :mediaId', { mediaId })
+                .getExists(),
+            ]);
+
+            if (isAvatar || isBlockMedia) {
+            throw new ConflictException(
+                'Media is already used in another location.',
+            );
+        }
+
 
         post.coverMedia = media;
 
@@ -184,9 +228,7 @@ export class MediaService {
         const [block, media] = await Promise.all([
             this.blockRepository.findOne({
             where: { id: blockId },
-            relations: {
-                post: true,
-            },
+    
             }),
             this.findOne(mediaId),
         ]);
@@ -195,12 +237,33 @@ export class MediaService {
             throw new NotFoundException('Block not found');
         }
 
+        this.validateImageMedia(media);
+
+
         if (media.owner.id !== userId) {
             throw new ForbiddenException(
             'You can only use your own media.',
             );
         }
+        const [isAvatar, isPostCover] = await Promise.all([
+            this.userRepository
+                .createQueryBuilder('user')
+                .innerJoin('user.avatarMedia', 'avatarMedia')
+                .where('avatarMedia.id = :mediaId', { mediaId })
+                .getExists(),
 
+            this.postRepository
+                .createQueryBuilder('post')
+                .innerJoin('post.coverMedia', 'coverMedia')
+                .where('coverMedia.id = :mediaId', { mediaId })
+                .getExists(),
+            ]);
+
+            if (isAvatar || isPostCover) {
+            throw new ConflictException(
+                'Media is already used in another location.',
+            );
+        }
         block.media = media;
 
         await this.blockRepository.save(block);
@@ -211,13 +274,36 @@ export class MediaService {
     async updateAvatar(userId : number, mediaId : number):Promise<void>{
         const media = await this.findOne(mediaId);
 
+        this.validateImageMedia(media);
+
+
         if(media.owner.id !== userId){
             throw new ForbiddenException('You can only use your own media.')
         }
 
+        const [isPostCover, isBlockMedia] = await Promise.all([
+            this.postRepository
+                .createQueryBuilder('post')
+                .innerJoin('post.coverMedia', 'coverMedia')
+                .where('coverMedia.id = :mediaId', { mediaId })
+                .getExists(),
+
+            this.blockRepository
+                .createQueryBuilder('block')
+                .innerJoin('block.media', 'media')
+                .where('media.id = :mediaId', { mediaId })
+                .getExists(),
+            ]);
+
+            if (isPostCover || isBlockMedia) {
+            throw new ConflictException(
+                'Media is already attached to a post.',
+            );
+        }
+
+
         const user = await this.userRepository.findOne({
             where: { id: userId },
-            relations: {avatarMedia:true},
         });
 
         if (!user) {
@@ -228,20 +314,6 @@ export class MediaService {
 
         await this.userRepository.save(user);
         
-    }
-
-    async remove(id: number): Promise<void> {
-        const media = await this.findOne(id);
-
-        await this.mediaRepository.remove(media);
-
-        try {
-            await this.storageService.delete(media.path);
-        } catch {
-            throw new InternalServerErrorException(
-                'Media record was deleted, but the file could not be deleted from storage',
-            );
-        }
     }
 
     async getReadAccess(id:number):Promise<string>{
@@ -278,6 +350,46 @@ export class MediaService {
 
 
         return access.url;
+    }
+
+    async remove(id: number): Promise<void> {
+        const media = await this.findOne(id);
+
+        const [isAvatar, isPostCover, isBlockMedia] = await Promise.all([
+            this.userRepository
+            .createQueryBuilder('user')
+            .innerJoin('user.avatarMedia', 'avatarMedia')
+            .where('avatarMedia.id = :id', { id })
+            .getExists(),
+
+            this.postRepository
+            .createQueryBuilder('post')
+            .innerJoin('post.coverMedia', 'coverMedia')
+            .where('coverMedia.id = :id', { id })
+            .getExists(),
+
+            this.blockRepository
+            .createQueryBuilder('block')
+            .innerJoin('block.media', 'media')
+            .where('media.id = :id', { id })
+            .getExists(),
+        ]);
+
+        if (isAvatar || isPostCover || isBlockMedia) {
+            throw new ConflictException(
+            'Media is currently in use and cannot be deleted.',
+            );
+        }
+
+        try {
+            await this.storageService.delete(media.path);
+        } catch {
+            throw new InternalServerErrorException(
+            'File could not be deleted from storage.',
+            );
+        }
+
+        await this.mediaRepository.remove(media);
     }
 
 }
