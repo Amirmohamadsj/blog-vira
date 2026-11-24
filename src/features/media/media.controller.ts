@@ -1,4 +1,4 @@
-import { Controller,Post,UseInterceptors,UploadedFile,ParseFilePipe,MaxFileSizeValidator,BadRequestException,UseGuards, Inject, Param, Res, Req, StreamableFile, Get, ParseIntPipe, Delete,Patch,Body } from '@nestjs/common';
+import { Controller,Post,UseInterceptors,UploadedFile,ParseFilePipe,MaxFileSizeValidator,BadRequestException,UseGuards, Inject, Param, Res, Req, Get, ParseIntPipe, Delete,Patch,Body } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaIdModel } from '../../core/models/media-models/media-id.model.js';
@@ -91,7 +91,7 @@ export class MediaController {
       return response.redirect(302, url);
   }
 
-
+  @ApiBearerAuth()
   @Patch('avatar')
   @UseGuards(AuthGuard)
   async updateAvatar(
@@ -106,6 +106,7 @@ export class MediaController {
     return { message: 'Avatar updated successfully' };
   }
 
+  @ApiBearerAuth()
   @Post('posts/:postId')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin')
@@ -125,6 +126,8 @@ export class MediaController {
     };
   }
 
+
+  @ApiBearerAuth()
   @Post('blocks/:blockId')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin')
