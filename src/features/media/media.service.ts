@@ -297,9 +297,8 @@ export class MediaService {
 
             if (isPostCover || isBlockMedia) {
             throw new ConflictException(
-                'Media is already attached to a post.',
-            );
-        }
+                'Media is already used in another location.'            );
+            }
 
 
         const user = await this.userRepository.findOne({
