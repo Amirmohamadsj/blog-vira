@@ -82,6 +82,36 @@ export class MediaController {
 
   
   @Get(':id/access')
+  @ApiOperation({
+  summary: 'Get public access to a media file',
+    description:'Redirects to a temporary signed URL if the media is publicly accessible.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    description: 'Media ID',
+    example: 1,
+  })
+  @ApiResponse({
+    status: 302,
+    description: 'Redirect to the signed media URL',
+    headers: {
+      Location: {
+        description: 'Temporary signed URL',
+        schema: {
+          type: 'string',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Media is not publicly accessible',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
   async getAccess(
       @Param('id', ParseIntPipe) id: number,
       @Res() response: Response,
@@ -92,6 +122,16 @@ export class MediaController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update user avatar' })
+  @ApiResponse({
+    status: 200,
+    description: 'Avatar updated successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid media type' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Media does not belong to the user' })
+  @ApiResponse({ status: 404, description: 'Media or user not found' })
+  @ApiResponse({ status: 409, description: 'Media is already used elsewhere' })
   @Patch('avatar')
   @UseGuards(AuthGuard)
   async updateAvatar(
@@ -107,6 +147,28 @@ export class MediaController {
   }
 
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Attach media to a post cover (Admin only)',
+    description: 'Attaches an uploaded image to the specified post as its cover.',
+  })
+  @ApiParam({
+    name: 'postId',
+    type: Number,
+    description: 'Post ID',
+    example: 1,
+  })
+  @ApiBody({
+    type: MediaIdModel,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Media attached to post successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid media type' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Admin access required or media ownership violation' })
+  @ApiResponse({ status: 404, description: 'Post or media not found' })
+  @ApiResponse({ status: 409, description: 'Media is already used in another location' })
   @Post('posts/:postId')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin')
@@ -128,6 +190,34 @@ export class MediaController {
 
 
   @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Attach media to a block (Admin only)',
+    description: 'Attaches an uploaded image to the specified block.',
+  })
+  @ApiParam({
+    name: 'blockId',
+    type: Number,
+    description: 'Block ID',
+    example: 1,
+  })
+  @ApiBody({
+    type: MediaIdModel,
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Media attached to block successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Invalid media type' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Admin access required or media ownership violation',
+  })
+  @ApiResponse({ status: 404, description: 'Block or media not found' })
+  @ApiResponse({
+    status: 409,
+    description: 'Media is already used in another location',
+  })
   @Post('blocks/:blockId')
   @UseGuards(AuthGuard, RolesGuard)
   @Roles('admin')
