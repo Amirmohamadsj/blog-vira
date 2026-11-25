@@ -75,18 +75,33 @@ export class UsersService {
             throw new NotFoundException('User not found');
         }
 
-        if (updateUserModels.password) {
-            updateUserModels.password = await bcrypt.hash(
-            updateUserModels.password,
-            10,
-            );
+        if (updateUserModels.email && updateUserModels.email !== user.email) {
+            const existingUser = await this.userRepository.findOne({
+                where: { email: updateUserModels.email },
+            });
+
+            if (existingUser) {
+                throw new ConflictException('Email already exists');
+            }
+        }
+        const updateData = { ...updateUserModels };
+
+
+        if (updateData.password) {
+            updateData.password = await bcrypt.hash(updateData.password, 10);
         }
 
-        await this.userRepository.update(id, updateUserModels);
+        await this.userRepository.update(id, updateData);
+
 
         const updatedUser = await this.userRepository.findOne({
             where: { id },
         });
+        
+        if (!updatedUser) {
+            throw new NotFoundException('User not found');
+        }
+
 
         return updatedUser;
     }
